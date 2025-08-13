@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+# python3
+
 """
 Outil d'enregistrement en continu les liquidations Binance Futures
 Tools for listen liquidation of binance Futures and record that in csv (for use in bot or just analysing data)
