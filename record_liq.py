@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Enregistre en continu les liquidations Binance Futures
+Outil d'enregistrement en continu les liquidations Binance Futures
+Tools for listen liquidation of binance Futures and record that in csv (for use in bot or just analysing data)
 (WebSocket !forceOrder@arr) dans /data/liquidations.csv
 """
 
 import websocket, json, csv, os, time
 from threading import Thread
 
-# Paramètres
+# Parameters
 OUT_DIR = "data"
 OUT_FILE = os.path.join(OUT_DIR, "liquidations.csv")
 URL = "wss://fstream.binance.com/ws/!forceOrder@arr"
 
-# Prépare le dossier et le fichier (en-tête CSV)
+# Prepare the folder and file (CSV header)
 os.makedirs(OUT_DIR, exist_ok=True)
 if not os.path.exists(OUT_FILE):
     with open(OUT_FILE, "w", newline="") as f:
@@ -23,15 +24,15 @@ if not os.path.exists(OUT_FILE):
 def on_message(ws, msg):
     data = json.loads(msg)
     o = data["o"]
-    ts = data["E"]          # Event Time ms
-    symbol = o["s"]         # e.g. BTCUSDT
-    side = o["S"]           # BUY=shorts liquidés, SELL=longs liquidés
+    ts = data["E"]          
+    symbol = o["s"]         # for example BTCUSDT
+    side = o["S"]           # BUY=shorts liquidés, SELL=longs liquidés / special for liquidation binance buy for a short
     price = o["p"]
     qty   = o["q"]
-        # affiche la liquidation
+        # Print the liquidation
     print(f"[{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(ts/1000))}] "
           f"{symbol} {side} @ {price} × {qty}")
-    # puis écrit dans le CSV
+    # write in CSV
     # Append to CSV
     with open(OUT_FILE, "a", newline="") as f:
         csv.writer(f).writerow([ts, symbol, side, price, qty])
@@ -52,7 +53,7 @@ def run_logger():
 if __name__ == "__main__":
     print("▶️  Démarrage du logger liquidations… (CTRL+C pour stopper)")
     Thread(target=run_logger, daemon=True).start()
-    # Simple loop pour garder le process vivant
+    # Simple loop for keep process good
     try:
         while True:
             time.sleep(1)
